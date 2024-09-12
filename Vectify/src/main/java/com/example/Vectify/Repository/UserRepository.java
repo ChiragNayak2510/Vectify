@@ -4,10 +4,9 @@ import com.example.Vectify.Entity.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface UserRepository extends JpaRepository<UserEntity, Long> {
-    // Custom query methods (if needed) can be defined here, for example:
-    UserEntity findByEmail(String email);
+    Optional<UserEntity> findByEmail(String email);
 }
-
-

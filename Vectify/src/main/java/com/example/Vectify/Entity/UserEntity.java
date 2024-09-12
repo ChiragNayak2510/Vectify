@@ -1,7 +1,7 @@
 package com.example.Vectify.Entity;
 import jakarta.persistence.*;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Table;
+
+import java.util.List;
 
 @Entity
 @Table(name="users")
@@ -17,7 +17,8 @@ public class UserEntity {
     @Column(nullable = false, unique = true)
     private String email;
 
-    // Constructors
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    public List<CollectionEntity> collections;
     public UserEntity() {}
 
     public UserEntity(Long id, String name, String email) {

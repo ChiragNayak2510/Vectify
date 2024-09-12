@@ -1,5 +1,4 @@
 package com.example.Vectify.Service;
-
 import com.example.Vectify.Repository.UserRepository;
 import com.example.Vectify.Entity.UserEntity;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +29,8 @@ public class UserService {
         userRepository.deleteById(id);
     }
 
-    public UserEntity getUserByEmail(String email) {
+    public Optional<UserEntity> getUserByEmail(String email) {
         return userRepository.findByEmail(email);
     }
+
 }
