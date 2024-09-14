@@ -1,10 +1,12 @@
 package com.example.Vectify.Entity;
+
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name="users")
+@Table(name = "users")
 public class UserEntity {
 
     @Id
@@ -17,8 +19,10 @@ public class UserEntity {
     @Column(nullable = false, unique = true)
     private String email;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    public List<CollectionEntity> collections;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    private List<CollectionEntity> collections = new ArrayList<>();
+
+    // Constructors
     public UserEntity() {}
 
     public UserEntity(Long id, String name, String email) {
@@ -50,6 +54,14 @@ public class UserEntity {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public List<CollectionEntity> getCollections() {
+        return collections;
+    }
+
+    public void setCollections(List<CollectionEntity> collections) {
+        this.collections = collections;
     }
 
     @Override
