@@ -19,6 +19,9 @@ public class ObjectEntity {
     @Column(name = "embedding", columnDefinition = "float[]")
     private float[] embedding;
 
+    @Column(name = "embedding_key")
+    private String embeddingKey;
+
     // Default constructor
     public ObjectEntity() {}
 
@@ -45,5 +48,13 @@ public class ObjectEntity {
 
     public void setEmbedding(float[] embedding) {
         this.embedding = embedding;
+    }
+
+    public String getEmbeddingKey() {
+        return embeddingKey;
+    }
+
+    public void setEmbeddingKey(String embeddingKey) {
+        this.embeddingKey = embeddingKey;
     }
 }

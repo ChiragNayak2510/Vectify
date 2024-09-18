@@ -10,7 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class CollectionService {
@@ -95,5 +97,16 @@ public class CollectionService {
                     return true;
                 })
                 .orElse(false);
+    }
+    public List<String> getAttributeValuesByKey(Long collectionId, String attributeKey) {
+        // Fetch the collection by ID
+        CollectionEntity collection = collectionRepository.findById(collectionId)
+                .orElseThrow(() -> new RuntimeException("Collection not found"));
+
+        // Extract attribute values from each ObjectEntity based on the attribute key
+        return collection.getObjects().stream()
+                .map(object -> object.getAttributes().get(attributeKey)) // Get attribute value by key
+                .filter(Objects::nonNull) // Ensure only non-null values are returned
+                .collect(Collectors.toList());
     }
 }
