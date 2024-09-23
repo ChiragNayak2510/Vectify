@@ -1,6 +1,7 @@
 package com.example.Vectify.Entity;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +21,7 @@ public class UserEntity {
     private String email;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    @JsonManagedReference
     private List<CollectionEntity> collections = new ArrayList<>();
 
     // Constructors

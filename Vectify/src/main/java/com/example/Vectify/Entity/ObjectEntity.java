@@ -1,6 +1,7 @@
 package com.example.Vectify.Entity;
 
 import jakarta.persistence.*;
+
 import java.util.Map;
 
 @Entity
@@ -16,8 +17,8 @@ public class ObjectEntity {
     @Column(name = "attribute_value")
     private Map<String, String> attributes;
 
-    @Column(name = "embedding", columnDefinition = "float[]")
-    private float[] embedding;
+    @Column(name = "embedding", columnDefinition = "double[]")
+    private double[] embedding;
 
     @Column(name = "embedding_key")
     private String embeddingKey;
@@ -42,11 +43,11 @@ public class ObjectEntity {
         this.attributes = attributes;
     }
 
-    public float[] getEmbedding() {
+    public double[] getEmbedding() {
         return embedding;
     }
 
-    public void setEmbedding(float[] embedding) {
+    public void setEmbedding(double[] embedding) {
         this.embedding = embedding;
     }
 

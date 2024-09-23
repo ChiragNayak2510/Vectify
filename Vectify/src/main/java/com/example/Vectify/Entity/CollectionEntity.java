@@ -1,6 +1,8 @@
 package com.example.Vectify.Entity;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,10 +17,11 @@ public class CollectionEntity {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
+    @JsonBackReference // This will ignore this reference during serialization
     private UserEntity user;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "collection_id") // Foreign key for ObjectEntity in the objects table
+    @JoinColumn(name = "collection_id")
     private List<ObjectEntity> objects = new ArrayList<>();
 
     // Default constructor

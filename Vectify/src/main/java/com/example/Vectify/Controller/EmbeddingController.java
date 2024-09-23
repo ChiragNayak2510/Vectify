@@ -2,6 +2,7 @@ package com.example.Vectify.Controller;
 
 import com.cohere.api.Cohere;
 import com.cohere.api.requests.EmbedRequest;
+import com.cohere.api.types.EmbedFloatsResponse;
 import com.cohere.api.types.EmbedResponse;
 import com.example.Vectify.Entity.CollectionEntity;
 import com.example.Vectify.Entity.ObjectEntity;
@@ -12,8 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/embeddings")
@@ -21,22 +22,22 @@ public class EmbeddingController {
 
     @Autowired
     private Cohere cohereClient;
-    @Autowired
-    CollectionService collectionService;
 
     @Autowired
-    CollectionRepository collectionRepository;
+    private CollectionService collectionService;
+
+    @Autowired
+    private CollectionRepository collectionRepository;
+
     @PostMapping("/generate")
     public EmbedResponse generateEmbeddings(@RequestBody List<String> texts) {
         try {
-
             return cohereClient.embed(EmbedRequest.builder()
                     .texts(texts)
                     .model("embed-english-v3.0")
                     .inputType(com.cohere.api.types.EmbedInputType.CLASSIFICATION)
                     .build());
         } catch (Exception e) {
-            // Handle any potential errors
             throw new RuntimeException("Failed to generate embeddings", e);
         }
     }
@@ -55,29 +56,46 @@ public class EmbeddingController {
                 .model("embed-english-v3.0")
                 .inputType(com.cohere.api.types.EmbedInputType.CLASSIFICATION)
                 .build());
+        System.out.println(embedResponse);
 
-        List<float[]> embeddings = Arrays.asList(new float[]{1.2f, 2.4f}, new float[]{3.6f, 7.2f}); // Placeholder
+        // Step 3: Handle the Optional embeddings properly
+        Optional<EmbedFloatsResponse> optionalEmbeddings = embedResponse.getEmbeddingsFloats();
+        if (optionalEmbeddings.isEmpty()) {
+            throw new RuntimeException("No embeddings returned by the Cohere API");
+        }
 
-        // Step 3: Retrieve the collection entity to update
+        EmbedFloatsResponse embedFloatsResponse = optionalEmbeddings.get();
+        List<List<Double>> embeddingsList = embedFloatsResponse.getEmbeddings();
+
+        // Convert List<List<Double>> to double[][]
+        double[][] embeddings = new double[embeddingsList.size()][];
+        for (int i = 0; i < embeddingsList.size(); i++) {
+            List<Double> innerList = embeddingsList.get(i);
+            embeddings[i] = new double[innerList.size()];
+            for (int j = 0; j < innerList.size(); j++) {
+                embeddings[i][j] = innerList.get(j); // Convert Double to double
+            }
+        }
+
+        // Step 4: Retrieve the collection entity to update
         CollectionEntity collection = collectionRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Collection not found"));
 
-        // Step 4: Update the ObjectEntity embeddings with the generated vectors
+        // Step 5: Update the ObjectEntity embeddings with the generated vectors
         int i = 0;
         for (ObjectEntity object : collection.getObjects()) {
             String attributeValue = object.getAttributes().get(attribute);
-            if (attributeValue != null && i < embeddings.size()) {
-                object.setEmbedding(embeddings.get(i)); // Update embedding
+            if (attributeValue != null && i < embeddings.length) {
+                object.setEmbedding(embeddings[i]); // Update embedding
                 object.setEmbeddingKey(attribute); // Set the embedding key
                 i++;
             }
         }
 
-        // Step 5: Save the updated collection
+        // Step 6: Save the updated collection
         collectionRepository.save(collection);
 
-        // Step 6: Return the updated collection
+        // Step 7: Return the updated collection
         return ResponseEntity.ok(collection);
     }
 }
-
