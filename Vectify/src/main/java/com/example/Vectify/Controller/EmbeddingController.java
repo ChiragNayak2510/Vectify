@@ -47,10 +47,8 @@ public class EmbeddingController {
         Long id = request.getId();
         String attribute = request.getAttribute();
 
-        // Step 1: Get the list of strings based on the attribute key from the service
         List<String> texts = collectionService.getAttributeValuesByKey(id, attribute);
 
-        // Step 2: Generate vector embeddings using the Cohere API
         EmbedResponse embedResponse = cohereClient.embed(EmbedRequest.builder()
                 .texts(texts)
                 .model("embed-english-v3.0")
@@ -58,7 +56,6 @@ public class EmbeddingController {
                 .build());
         System.out.println(embedResponse);
 
-        // Step 3: Handle the Optional embeddings properly
         Optional<EmbedFloatsResponse> optionalEmbeddings = embedResponse.getEmbeddingsFloats();
         if (optionalEmbeddings.isEmpty()) {
             throw new RuntimeException("No embeddings returned by the Cohere API");
@@ -73,29 +70,24 @@ public class EmbeddingController {
             List<Double> innerList = embeddingsList.get(i);
             embeddings[i] = new double[innerList.size()];
             for (int j = 0; j < innerList.size(); j++) {
-                embeddings[i][j] = innerList.get(j); // Convert Double to double
+                embeddings[i][j] = innerList.get(j);
             }
         }
 
-        // Step 4: Retrieve the collection entity to update
         CollectionEntity collection = collectionRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Collection not found"));
-
-        // Step 5: Update the ObjectEntity embeddings with the generated vectors
         int i = 0;
         for (ObjectEntity object : collection.getObjects()) {
             String attributeValue = object.getAttributes().get(attribute);
             if (attributeValue != null && i < embeddings.length) {
-                object.setEmbedding(embeddings[i]); // Update embedding
-                object.setEmbeddingKey(attribute); // Set the embedding key
+                object.setEmbedding(embeddings[i]);
+                object.setEmbeddingKey(attribute);
                 i++;
             }
         }
 
-        // Step 6: Save the updated collection
         collectionRepository.save(collection);
 
-        // Step 7: Return the updated collection
         return ResponseEntity.ok(collection);
     }
 }

@@ -33,7 +33,6 @@ public class UserEntity {
         this.email = email;
     }
 
-    // Getters and Setters
     public Long getId() {
         return id;
     }
