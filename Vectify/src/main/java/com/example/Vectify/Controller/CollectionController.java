@@ -6,12 +6,16 @@ import com.cohere.api.types.EmbedFloatsResponse;
 import com.cohere.api.types.EmbedResponse;
 import com.example.Vectify.Entity.CollectionEntity;
 import com.example.Vectify.Entity.ObjectEntity;
+import com.example.Vectify.Request.CommaSeparatedRequest;
 import com.example.Vectify.Request.SearchRequest;
 import com.example.Vectify.Service.CollectionService;
 import com.example.Vectify.Service.VectorService;
+import org.apache.juli.logging.Log;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
@@ -47,6 +51,23 @@ public class CollectionController {
     @PostMapping
     public CollectionEntity createCollection(@RequestBody CollectionEntity collection) {
         return collectionService.createCollection(collection);
+    }
+
+    @PostMapping("/csv")
+    public ResponseEntity<CollectionEntity> createCollectionFromCsv(
+            @RequestParam("name") String name,
+            @RequestParam("userId") Long userId,
+            @RequestParam("file") MultipartFile file) {
+
+        try {
+            CollectionEntity collectionEntity = collectionService.createCollectionFromCsv(file, userId, name);
+            return new ResponseEntity<>(collectionEntity, HttpStatus.CREATED); // Return 201 Created
+        } catch (RuntimeException e) {
+
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
 
     @GetMapping("/search")

@@ -6,12 +6,13 @@ import com.example.Vectify.Entity.UserEntity;
 import com.example.Vectify.Repository.CollectionRepository;
 import com.example.Vectify.Repository.ObjectRepository;
 import com.example.Vectify.Repository.UserRepository;
+import com.opencsv.CSVReader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.io.InputStreamReader;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -45,16 +46,60 @@ public class CollectionService {
             }
         }
 
-        // Save the collection
-        CollectionEntity savedCollection = collectionRepository.save(collection);
-
-        // Save associated objects
+        // Set the collection reference for each object before saving the collection
         for (ObjectEntity object : collection.getObjects()) {
-            objectRepository.save(object);
+            object.setCollection(collection);  // Set the reference to the collection
         }
 
-        return savedCollection;
+        return collectionRepository.save(collection);
     }
+
+    public CollectionEntity createCollectionFromCsv(MultipartFile file, Long userId, String collectionName) throws Exception {
+        List<ObjectEntity> objects = getObjects(file,userId,collectionName);
+        CollectionEntity collection = new CollectionEntity();
+        collection.setName(collectionName);
+
+        // Set user
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        collection.setUser(user);
+
+        // Set the collection reference in each ObjectEntity
+        for (ObjectEntity object : objects) {
+            object.setCollection(collection);  // Important: Set the collection reference here
+        }
+
+        // Set objects in the collection
+        collection.setObjects(objects);
+
+        // Save collection and associated objects
+        return collectionRepository.save(collection);
+    }
+
+    public List<ObjectEntity> getObjects(MultipartFile file, Long userId, String collectionName) throws Exception{
+        List<ObjectEntity> objects = new ArrayList<>();
+        // Read the CSV file from MultipartFile
+        try (CSVReader csvReader = new CSVReader(new InputStreamReader(file.getInputStream()))) {
+            String[] headers = csvReader.readNext();
+            String[] nextLine;
+            while ((nextLine = csvReader.readNext()) != null) {
+                ObjectEntity object = new ObjectEntity();
+                Map<String, String> attributes = new HashMap<>();
+
+                for (int i = 0; i < headers.length; i++) {
+                    if (i < nextLine.length) {
+                        attributes.put(headers[i], nextLine[i]);
+                    }
+                }
+                object.setAttributes(attributes);
+                objects.add(object);
+            }
+        }
+        return objects;
+    }
+
+
 
     public Optional<CollectionEntity> updateCollection(Long id, CollectionEntity updatedCollection) {
         return collectionRepository.findById(id)
