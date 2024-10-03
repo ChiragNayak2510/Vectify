@@ -14,11 +14,14 @@ public class UserEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private String name;
+    @Column(unique = true)
+    private String username;
 
-    @Column(nullable = false, unique = true)
+    @Column(unique = true)
     private String email;
+
+    @Column(nullable = false)
+    private String userType;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @JsonManagedReference
@@ -27,12 +30,14 @@ public class UserEntity {
     // Constructors
     public UserEntity() {}
 
-    public UserEntity(Long id, String name, String email) {
+    public UserEntity(Long id, String username, String email, String userType) {
         this.id = id;
-        this.name = name;
+        this.username = username;
         this.email = email;
+        this.userType = userType;
     }
 
+    // Getters and setters
     public Long getId() {
         return id;
     }
@@ -42,11 +47,11 @@ public class UserEntity {
     }
 
     public String getName() {
-        return name;
+        return username;
     }
 
     public void setName(String name) {
-        this.name = name;
+        this.username = name;
     }
 
     public String getEmail() {
@@ -55,6 +60,14 @@ public class UserEntity {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getUserType() {
+        return userType;
+    }
+
+    public void setUserType(String userType) {
+        this.userType = userType;
     }
 
     public List<CollectionEntity> getCollections() {
@@ -69,8 +82,9 @@ public class UserEntity {
     public String toString() {
         return "UserEntity{" +
                 "id=" + id +
-                ", name='" + name + '\'' +
+                ", name='" + username + '\'' +
                 ", email='" + email + '\'' +
+                ", userType='" + userType + '\'' +
                 '}';
     }
 }

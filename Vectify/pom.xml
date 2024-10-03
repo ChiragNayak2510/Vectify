@@ -66,11 +66,17 @@
 			<version>5.9</version>
 		</dependency>
 
-<!--		 Spring Security OAuth2 Client for Google and GitHub sign-in -->
+		<!--Spring Security OAuth2 Client for Google and GitHub sign-in -->
 		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-oauth2-client</artifactId>
 			<version>6.3.3</version>
+		</dependency>
+
+		<!--Spring HTML render-->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-thymeleaf</artifactId>
 		</dependency>
 
 		<!-- Spring Boot Starter Redis with Jedis -->
@@ -90,7 +96,8 @@
 			<groupId>redis.clients</groupId>
 			<artifactId>jedis</artifactId>
 		</dependency>
-		<!--Spring Security Jose -->
+
+<!--		Spring Security Jose-->
 		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-oauth2-jose</artifactId>

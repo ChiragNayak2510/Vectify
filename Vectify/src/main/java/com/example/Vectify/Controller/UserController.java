@@ -29,7 +29,7 @@ public class UserController {
 
     @PostMapping
     public UserEntity addUser(@RequestBody UserEntity user) {
-        return userService.addUser(user);
+        return userService.addOrUpdateUser(user);
     }
 
     @DeleteMapping("/{id}")
