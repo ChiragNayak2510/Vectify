@@ -46,11 +46,11 @@ public class UserEntity {
         this.id = id;
     }
 
-    public String getName() {
+    public String getUsername() {
         return username;
     }
 
-    public void setName(String name) {
+    public void setUsername(String name) {
         this.username = name;
     }
 

@@ -31,7 +31,7 @@ public class UserService {
 
         if (existingUser.isPresent()) {
             UserEntity existing = existingUser.get();
-            existing.setName(user.getName());
+            existing.setUsername(user.getUsername());
             existing.setUserType(user.getUserType()); // Update userType
             return userRepository.save(existing); // Update user
         } else {
@@ -42,6 +42,11 @@ public class UserService {
     // Check if a user exists by username
     public boolean userExistsByUsername(String username) {
         return userRepository.findByUsername(username).isPresent();
+    }
+
+    // Get a user by username
+    public Optional<UserEntity> getUserByUsername(String username) {
+        return userRepository.findByUsername(username);
     }
 
     // Delete a user by ID

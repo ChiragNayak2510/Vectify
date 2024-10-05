@@ -53,7 +53,7 @@ public class OAuthUserService implements OAuth2UserService<OAuth2UserRequest, OA
         }
 
         UserEntity user = new UserEntity();
-        user.setName(username);
+        user.setUsername(username);
         user.setEmail(email);
         user.setUserType(userType);
         logger.info("User email: {}", user.getEmail());
