@@ -10,12 +10,17 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Component
 @RequiredArgsConstructor
@@ -27,6 +32,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
     @Autowired
     private UserService userService;
 
+    private static final Logger logger = LoggerFactory.getLogger(JWTAuthenticationFilter.class);
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
         final String authHeader = request.getHeader("Authorization");
@@ -41,10 +47,9 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
 
         jwt = authHeader.substring(7);
 
-        // Extract username (GitHub) or email (Google) from JWT token
         identifier = jwtUtility.extractUsername(jwt);  // Extracts username or email based on your logic
         provider = jwtUtility.extractProvider(jwt);     // Extracts the provider from claims
-
+        System.out.println(identifier+" "+provider+" "+SecurityContextHolder.getContext().getAuthentication());
         if (identifier != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             // Load UserEntity based on the provider (either by email or username)
             UserEntity userEntity;
@@ -57,19 +62,17 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
                 return;
             }
 
-            // Validate JWT token with UserEntity
             if (jwtUtility.isValidToken(jwt, userEntity)) {
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        userEntity, null
+                        userEntity, null, List.of(new SimpleGrantedAuthority("ROLE_USER"))
                 );
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
-
                 SecurityContextHolder.getContext().setAuthentication(authToken);
+            logger.info("SecurityContextHolder: {}", SecurityContextHolder.getContext().getAuthentication());
             }
-        }
 
-        // Continue the filter chain
+        }
         filterChain.doFilter(request, response);
     }
 }
